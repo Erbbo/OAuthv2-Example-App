@@ -1,9 +1,9 @@
 module.exports = {
-  entry: './src/OAuthv2/Content/js/index.js',
+  entry: './src/OAuth-React.Net/Content/js/index.js',
   output: { 
     path: __dirname, 
-    filename: 'src/OAuthv2/build/bundle.js',
-    sourceMapFilename: 'src/OAuthv2/build/bundle.js.map',
+    filename: 'src/OAuth-React.Net/build/bundle.js',
+    sourceMapFilename: 'src/OAuth-React.Net/build/bundle.js.map',
   },
   debug: true,
   devtool: 'source-map',
