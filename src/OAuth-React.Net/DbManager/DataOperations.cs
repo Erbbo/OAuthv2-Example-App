@@ -12,7 +12,7 @@ namespace OAuth_React.Net.DbManager
 
         private SqlConnection GetConnection()
         {
-            return new SqlConnection(ConfigurationManager.AppSettings["profile.connection"]);
+            return new SqlConnection(ConfigurationManager.AppSettings["connection"]);
         }
 
         public int SaveChanges(T value)

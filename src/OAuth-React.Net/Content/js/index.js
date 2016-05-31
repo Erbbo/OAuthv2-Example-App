@@ -11,21 +11,27 @@ export default class OAuthv2 extends React.Component {
       userName: '',
       accessToken: '',
     };
+
+    this.makeRequest = this.makeRequest.bind(this);
+    this.saveUser = this.saveUser.bind(this);
   }
 
   saveUser(data) {
+    console.log(data);
     this.setState({
       userName: data.UserName,
       accessToken: data.AccessToken,
     });
+    console.log(this.state.userName);
   }
 
   makeRequest(url) {
+    let save = this.saveUser;
     $.ajax({
       url: '/Home/' + url,
       dataType: 'json',
       success(data) {
-        this.saveUser(data);
+        save(data);
       },
       error(xhr, status, err) {
         console.log(err.toString());
