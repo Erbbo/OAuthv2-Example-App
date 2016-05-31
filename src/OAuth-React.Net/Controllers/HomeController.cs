@@ -1,9 +1,9 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2;
-using Google.Apis.Util.Store;
+using OAuth_React.Net.DbManager;
+using OAuth_React.Net.Models;
 using System;
-using System.Diagnostics;
-using System.IO;
+using System.Configuration;
 using System.Threading;
 using System.Web.Mvc;
 
@@ -11,7 +11,6 @@ namespace OAuth_React.Net.Controllers
 {
     public class HomeController : Controller
     {
-        // GET: Home
         public ActionResult Index()
         {
             return View();
@@ -19,64 +18,46 @@ namespace OAuth_React.Net.Controllers
 
         public JsonResult GoogleDrive()
         {
-            //Scopes for use with the Google Drive API
+            UserCredential credential = null;
+            JsonResult json = null;
             string[] scopes = new string[] { DriveService.Scope.Drive, DriveService.Scope.DriveFile };
-            var clientId = "613448404219-2reltjkbrroe2tatk80qr7utjkdfhfha.apps.googleusercontent.com";
-            var clientSecret = "0IUzvr3_LuNAZjuoD3Hhaubu";
-           
-            var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                new ClientSecrets
-                {
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                },
+            var clientAuth = new ClientSecrets
+            {
+                ClientId = ConfigurationManager.AppSettings["clientId"],
+                ClientSecret = ConfigurationManager.AppSettings["clientSecret"]
+            };
+
+            try
+            {
+                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                    clientAuth,
                     scopes,
                     Environment.UserName,
                     CancellationToken.None,
-                    new FileDataStore("Eric.GoogleDrive.Auth.Store")).Result;
+                    new DataStore()).Result;
+            }
+            catch (Exception ex)
+            {
+                throw new UnauthorizedAccessException(ex.Message, ex.InnerException);
+            }
 
-            return Json(
-                new
+            if (credential != null)
+            {
+                json = Json(new User
                 {
-                    user = credential.UserId,
-                    accessToken = credential.Token.AccessToken,
-                    refreshToken = credential.Token.RefreshToken,
-                    tokenType = credential.Token.TokenType,
-                    expires = credential.Token.ExpiresInSeconds,
-                    scope = scopes
-                }, 
+                    UserName = Environment.UserName,
+                    UserToken = credential.Token.AccessToken
+                },
+
                 JsonRequestBehavior.AllowGet);
+            }
+
+            return json;
         }
 
         public JsonResult Facebook()
         {
-            //Scopes for use with the Google Drive API
-            string[] scopes = new string[] { DriveService.Scope.Drive, DriveService.Scope.DriveFile };
-            var clientId = "613448404219-2reltjkbrroe2tatk80qr7utjkdfhfha.apps.googleusercontent.com";
-            var clientSecret = "0IUzvr3_LuNAZjuoD3Hhaubu";
-
-            var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                new ClientSecrets
-                {
-                    ClientId = clientId,
-                    ClientSecret = clientSecret
-                },
-                    scopes,
-                    Environment.UserName,
-                    CancellationToken.None,
-                    new FileDataStore("Eric.GoogleDrive.Auth.Store")).Result;
-
-            return Json(
-                new
-                {
-                    user = credential.UserId,
-                    accessToken = credential.Token.AccessToken,
-                    refreshToken = credential.Token.RefreshToken,
-                    tokenType = credential.Token.TokenType,
-                    expires = credential.Token.ExpiresInSeconds,
-                    scope = scopes
-                },
-                JsonRequestBehavior.AllowGet);
+            return new JsonResult();
         }
     }
 }
