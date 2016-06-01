@@ -1,8 +1,11 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2;
+using Google.Apis.Drive.v2.Data;
+using Google.Apis.Services;
 using OAuth_React.Net.DbManager;
 using OAuth_React.Net.Models;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Threading;
 using System.Web.Mvc;
@@ -35,6 +38,25 @@ namespace OAuth_React.Net.Controllers
                     Environment.UserName,
                     CancellationToken.None,
                     new DataStore()).Result;
+
+                GoogleDriveService service = new GoogleDriveService();
+                var gs = service.GetDriveService(credential);
+
+                FilesResource.ListRequest listRequest = gs.Files.List();
+                var files = listRequest.Execute().Items;
+                if (files != null && files.Count > 0)
+                {
+                    foreach (var file in files)
+                    {
+
+                    }
+                }
+                else
+                {
+
+                }
+
+                gs.Dispose();
             }
             catch (Exception ex)
             {
@@ -43,7 +65,7 @@ namespace OAuth_React.Net.Controllers
 
             if (credential != null)
             {
-                json = Json(new User
+                json = Json(new Models.User
                 {
                     UserName = Environment.UserName,
                     UserToken = credential.Token.AccessToken

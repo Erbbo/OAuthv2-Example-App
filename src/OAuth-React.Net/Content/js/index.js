@@ -17,16 +17,14 @@ export default class OAuthv2 extends React.Component {
   }
 
   saveUser(data) {
-    console.log(data);
     this.setState({
       userName: data.UserName,
       accessToken: data.AccessToken,
     });
-    console.log(this.state.userName);
   }
 
   makeRequest(url) {
-    let save = this.saveUser;
+    const save = this.saveUser;
     $.ajax({
       url: '/Home/' + url,
       dataType: 'json',
