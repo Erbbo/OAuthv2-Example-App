@@ -8,8 +8,7 @@ export default class OAuthv2 extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userName: '',
-      accessToken: '',
+      fileUrls: [{}],
     };
 
     this.makeRequest = this.makeRequest.bind(this);
@@ -18,8 +17,7 @@ export default class OAuthv2 extends React.Component {
 
   saveUser(data) {
     this.setState({
-      userName: data.UserName,
-      accessToken: data.AccessToken,
+      fileUrls: data.FileUrls,
     });
   }
 
@@ -29,6 +27,7 @@ export default class OAuthv2 extends React.Component {
       url: '/Home/' + url,
       dataType: 'json',
       success(data) {
+        console.log(data);
         save(data);
       },
       error(xhr, status, err) {

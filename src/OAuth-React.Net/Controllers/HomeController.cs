@@ -21,6 +21,7 @@ namespace OAuth_React.Net.Controllers
 
         public JsonResult GoogleDrive()
         {
+            IList<Models.File> fileUrls = new List<Models.File>();
             UserCredential credential = null;
             JsonResult json = null;
             string[] scopes = new string[] { DriveService.Scope.Drive, DriveService.Scope.DriveFile };
@@ -41,34 +42,38 @@ namespace OAuth_React.Net.Controllers
 
                 GoogleDriveService service = new GoogleDriveService();
                 var gs = service.GetDriveService(credential);
-
                 FilesResource.ListRequest listRequest = gs.Files.List();
                 var files = listRequest.Execute().Items;
                 if (files != null && files.Count > 0)
                 {
-                    foreach (var file in files)
+                    files.ForEach(x =>
                     {
-
-                    }
-                }
-                else
-                {
-
+                        if (x.ExportLinks != null)
+                        {
+                            x.ExportLinks.AddUrls(y =>
+                            {
+                                fileUrls.Add(new Models.File
+                                {
+                                    FileType = y.Key,
+                                    FileUrl = y.Value
+                                });
+                            });
+                        }
+                    });
                 }
 
                 gs.Dispose();
             }
             catch (Exception ex)
             {
-                throw new UnauthorizedAccessException(ex.Message, ex.InnerException);
+                throw new Exception(ex.Message, ex.InnerException);
             }
 
-            if (credential != null)
+            if (fileUrls != null && fileUrls.Count > 0)
             {
-                json = Json(new Models.User
+                json = Json(new Models.File
                 {
-                    UserName = Environment.UserName,
-                    UserToken = credential.Token.AccessToken
+                    FileUrls = fileUrls
                 },
 
                 JsonRequestBehavior.AllowGet);
