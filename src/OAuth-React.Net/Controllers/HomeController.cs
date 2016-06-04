@@ -1,13 +1,10 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2;
-using Google.Apis.Drive.v2.Data;
-using Google.Apis.Services;
 using OAuth_React.Net.DbManager;
 using OAuth_React.Net.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Threading;
 using System.Web.Mvc;
 
 namespace OAuth_React.Net.Controllers
@@ -19,50 +16,37 @@ namespace OAuth_React.Net.Controllers
             return View();
         }
 
-        public JsonResult GoogleDrive()
+        public JsonResult ShowAuthenticationValues()
         {
-            IList<Models.File> fileUrls = new List<Models.File>();
-            UserCredential credential = null;
             JsonResult json = null;
-            string[] scopes = new string[] { DriveService.Scope.Drive, DriveService.Scope.DriveFile };
-            var clientAuth = new ClientSecrets
+            GoogleDriveService googleService = Authorize();
+            json = Json(new Models.UserCredential
             {
-                ClientId = ConfigurationManager.AppSettings["clientId"],
-                ClientSecret = ConfigurationManager.AppSettings["clientSecret"]
-            };
+                UserName = googleService.UserCredential.UserId,
+                UserToken = googleService.UserCredential.Token.AccessToken
+            },
+            JsonRequestBehavior.AllowGet);
+
+            return json;
+        }
+
+        public JsonResult ShowDriveData()
+        {
+            var fileUrls = new List<File>();
+            JsonResult json = null;
 
             try
             {
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    clientAuth,
-                    scopes,
-                    Environment.UserName,
-                    CancellationToken.None,
-                    new DataStore()).Result;
-
-                GoogleDriveService service = new GoogleDriveService();
-                var gs = service.GetDriveService(credential);
-                FilesResource.ListRequest listRequest = gs.Files.List();
-                var files = listRequest.Execute().Items;
-                if (files != null && files.Count > 0)
+                GoogleDriveService googleService = Authorize();
+                using (var drive = googleService.Drive)
                 {
-                    files.ForEach(x =>
+                    FilesResource.ListRequest listRequest = drive.Files.List();
+                    var files = listRequest.Execute().Items;
+                    if (files != null && files.Count > 0)
                     {
-                        if (x.ExportLinks != null)
-                        {
-                            x.ExportLinks.AddUrls(y =>
-                            {
-                                fileUrls.Add(new Models.File
-                                {
-                                    FileType = y.Key,
-                                    FileUrl = y.Value
-                                });
-                            });
-                        }
-                    });
+                        fileUrls.ExtractFileUrls(files);
+                    }
                 }
-
-                gs.Dispose();
             }
             catch (Exception ex)
             {
@@ -71,7 +55,7 @@ namespace OAuth_React.Net.Controllers
 
             if (fileUrls != null && fileUrls.Count > 0)
             {
-                json = Json(new Models.File
+                json = Json(new File
                 {
                     FileUrls = fileUrls
                 },
@@ -82,9 +66,18 @@ namespace OAuth_React.Net.Controllers
             return json;
         }
 
-        public JsonResult Facebook()
+        private GoogleDriveService Authorize()
         {
-            return new JsonResult();
+            var googleService = new GoogleDriveService(
+                new ClientSecrets
+                {
+                    ClientId = ConfigurationManager.AppSettings["clientId"],
+                    ClientSecret = ConfigurationManager.AppSettings["clientSecret"]
+                },
+                "OAuthDrive");
+
+            googleService.Authorize(new[] { DriveService.Scope.Drive, DriveService.Scope.DriveFile }, new DataStore());
+            return googleService;
         }
     }
 }

@@ -7,7 +7,7 @@ export default class Nav extends React.Component {
       <Navbar fluid>
         <Navbar.Header>
           <Navbar.Brand>
-            <a className="container-fluid" href="#">OAuthv2 Example Logins</a>
+            <a className="container-fluid" href="#">OAuthv2 Example</a>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>

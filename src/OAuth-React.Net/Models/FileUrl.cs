@@ -24,5 +24,23 @@ namespace OAuth_React.Net.Models
         {
             foreach (var x in xs) f(x);
         }
+
+        public static void ExtractFileUrls(this List<File> listOffileUrls, IList<Google.Apis.Drive.v2.Data.File> files)
+        {
+            files.ForEach(x =>
+            {
+                if (x.ExportLinks != null)
+                {
+                    x.ExportLinks.AddUrls(y =>
+                    {
+                        listOffileUrls.Add(new File
+                        {
+                            FileType = y.Key,
+                            FileUrl = y.Value
+                        });
+                    });
+                }
+            });
+        }
     }
 }

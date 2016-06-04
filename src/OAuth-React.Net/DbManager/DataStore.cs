@@ -3,18 +3,16 @@ using Google.Apis.Util.Store;
 using OAuth_React.Net.Models;
 using System;
 using System.Threading.Tasks;
-using System.Web.Helpers;
-using System.Web.Script.Serialization;
 
 namespace OAuth_React.Net.DbManager
 {
     public class DataStore : IDataStore
     {
-        private DataOperations<User> _operations;
+        private DataOperations<UserCredential> _operations;
 
         public DataStore()
         {
-            _operations = new DataOperations<User>();
+            _operations = new DataOperations<UserCredential>();
         }
 
         public Task ClearAsync()
@@ -52,7 +50,7 @@ namespace OAuth_React.Net.DbManager
         {
             var json = NewtonsoftJsonSerializer.Instance.Serialize(value);
             return Task.Run(() =>
-                _operations.SaveChanges(new User
+                _operations.SaveChanges(new UserCredential
                 {
                     UserName = key,
                     UserToken = json
