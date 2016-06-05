@@ -11,9 +11,10 @@ namespace OAuth_React.Net
     {
         private readonly ClientSecrets _applicationCredentials;
         private readonly string _applicationName;
-        public UserCredential UserCredential { get; private set; } 
+        public UserCredential UserCredential { get; set; }
 
-        public DriveService Drive {
+        public DriveService Drive
+        {
             get
             {
                 return new DriveService(new BaseClientService.Initializer

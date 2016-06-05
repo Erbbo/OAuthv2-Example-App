@@ -1,35 +1,44 @@
-﻿using Google.Apis.Auth.OAuth2;
-using Google.Apis.Drive.v2;
-using OAuth_React.Net.DbManager;
+﻿using Google.Apis.Drive.v2;
+using OAuth_React.Net.Authorize;
 using OAuth_React.Net.Models;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Web.Mvc;
 
 namespace OAuth_React.Net.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IAuthorize<GoogleDriveService> _authorize;
+        public HomeController(IAuthorize<GoogleDriveService> authorize)
+        {
+            _authorize = authorize;
+        }
+
         public ActionResult Index()
         {
             return View();
         }
 
+        /// <summary>
+        /// Show username and token stored in database
+        /// </summary>
+        /// <returns></returns>
         public JsonResult ShowAuthenticationValues()
         {
             JsonResult json = null;
-            GoogleDriveService googleService = Authorize();
-            json = Json(new Models.UserCredential
+            using (var googleService = _authorize.Authorize())
             {
-                UserName = googleService.UserCredential.UserId,
-                UserToken = googleService.UserCredential.Token.AccessToken
-            },
-            JsonRequestBehavior.AllowGet);
+                json = Json(_authorize.ResponseCredentials(), JsonRequestBehavior.AllowGet);
+            }
 
             return json;
         }
 
+        /// <summary>
+        /// Authorize with access token and display Urls
+        /// </summary>
+        /// <returns></returns>
         public JsonResult ShowDriveData()
         {
             var fileUrls = new List<File>();
@@ -37,8 +46,7 @@ namespace OAuth_React.Net.Controllers
 
             try
             {
-                GoogleDriveService googleService = Authorize();
-                using (var drive = googleService.Drive)
+                using (var drive = _authorize.Authorize().Drive)
                 {
                     FilesResource.ListRequest listRequest = drive.Files.List();
                     var files = listRequest.Execute().Items;
@@ -64,20 +72,6 @@ namespace OAuth_React.Net.Controllers
             }
 
             return json;
-        }
-
-        private GoogleDriveService Authorize()
-        {
-            var googleService = new GoogleDriveService(
-                new ClientSecrets
-                {
-                    ClientId = ConfigurationManager.AppSettings["clientId"],
-                    ClientSecret = ConfigurationManager.AppSettings["clientSecret"]
-                },
-                "OAuthDrive");
-
-            googleService.Authorize(new[] { DriveService.Scope.Drive, DriveService.Scope.DriveFile }, new DataStore());
-            return googleService;
         }
     }
 }
