@@ -175,7 +175,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="AuthorizeGoogle.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="DbManager\DataOperations.cs" />
     <Compile Include="DbManager\DataStore.cs" />

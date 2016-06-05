@@ -42,7 +42,6 @@ export default class OAuthv2 extends React.Component {
 
   render() {
     const data = this.state.fileUrls;
-    console.log(data);
     return (
       <div>
         <Nav />,
