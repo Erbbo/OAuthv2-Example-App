@@ -46,7 +46,8 @@ namespace OAuth_React.Net.Controllers
 
             try
             {
-                using (var drive = _authorize.Authorize().Drive)
+                using (var auth = _authorize.Authorize())
+                using (var drive = auth.Drive)
                 {
                     FilesResource.ListRequest listRequest = drive.Files.List();
                     var files = listRequest.Execute().Items;

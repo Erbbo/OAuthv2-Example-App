@@ -1,7 +1,6 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2;
 using OAuth_React.Net.DbManager;
-using System;
 using System.Configuration;
 
 namespace OAuth_React.Net.Authorize
@@ -16,8 +15,18 @@ namespace OAuth_React.Net.Authorize
             {
                 ClientId = ConfigurationManager.AppSettings["clientId"],
                 ClientSecret = ConfigurationManager.AppSettings["clientSecret"]
-            }, "OAuthDrive");
+            }, "OAuth");
         }
+
+        //Would inject these using IOC web.config injection
+        //public AuthorizeGoogle(ClientSecrets secrets, string appName)
+        //{
+        //    _googleDriveService = new GoogleDriveService(new ClientSecrets
+        //    {
+        //        ClientId = secrets.ClientId,
+        //        ClientSecret = secrets.ClientSecret
+        //    }, appName);
+        //}
 
         public Models.UserCredential ResponseCredentials()
         {
